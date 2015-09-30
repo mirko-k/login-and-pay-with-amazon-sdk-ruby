@@ -22,15 +22,15 @@ module PayWithAmazon
             amazon_reference_id,
             authorization_reference_id,
             charge_amount,
-            charge_currency_code: @currency_code,
-            charge_note: nil,
-            charge_order_id: nil,
-            store_name: nil,
-            custom_information: nil,
-            soft_descriptor: nil,
-            platform_id: nil,
-            merchant_id: @merchant_id,
-            mws_auth_token: nil)
+            charge_currency_code = @currency_code,
+            charge_note = nil,
+            charge_order_id = nil,
+            store_name = nil,
+            custom_information = nil,
+            soft_descriptor = nil,
+            platform_id = nil,
+            merchant_id = @merchant_id,
+            mws_auth_token = nil)
 
       if is_order_reference?(amazon_reference_id)
         response = call_order_reference_api(
@@ -86,31 +86,31 @@ module PayWithAmazon
       response = set_order_reference_details(
         amazon_reference_id,
         charge_amount,
-        currency_code: charge_currency_code,
-        platform_id: platform_id,
-        seller_note: charge_note,
-        seller_order_id: charge_order_id,
-        store_name: store_name,
-        custom_information: custom_information,
-        merchant_id: merchant_id,
-        mws_auth_token: mws_auth_token)
+        charge_currency_code,
+        platform_id,
+        charge_note,
+        charge_order_id,
+        store_name,
+        custom_information,
+        merchant_id,
+        mws_auth_token)
       if response.success
         response = confirm_order_reference(
           amazon_reference_id,
-          merchant_id: merchant_id,
-          mws_auth_token: mws_auth_token)
+          merchant_id,
+          mws_auth_token)
         if response.success
           response = authorize(
             amazon_reference_id,
             authorization_reference_id,
             charge_amount,
-            currency_code: charge_currency_code,
-            seller_authorization_note: charge_note,
-            transaction_timeout: 0,
-            capture_now: true,
-            soft_descriptor: soft_descriptor,
-            merchant_id: merchant_id,
-            mws_auth_token: mws_auth_token)
+            charge_currency_code,
+            charge_note,
+            0,
+            true,
+            soft_descriptor,
+            merchant_id,
+            mws_auth_token)
           return response
         else
           return response
@@ -136,23 +136,23 @@ module PayWithAmazon
 
       response = get_billing_agreement_details(
         amazon_reference_id,
-        merchant_id: merchant_id,
-        mws_auth_token: mws_auth_token)
+        merchant_id,
+        mws_auth_token)
       if response.get_element('GetBillingAgreementDetailsResponse/GetBillingAgreementDetailsResult/BillingAgreementDetails/BillingAgreementStatus','State').eql?('Draft')
         response = set_billing_agreement_details(
           amazon_reference_id,
-          platform_id: platform_id,
-          seller_note: charge_note,
-          seller_billing_agreement_id: charge_order_id,
-          store_name: store_name,
-          custom_information: custom_information,
-          merchant_id: merchant_id,
-          mws_auth_token: mws_auth_token)
+          platform_id,
+          charge_note,
+          charge_order_id,
+          store_name,
+          custom_information,
+          merchant_id,
+          mws_auth_token)
         if response.success
           response = confirm_billing_agreement(
             amazon_reference_id,
-            merchant_id: merchant_id,
-            mws_auth_token: mws_auth_token)
+            merchant_id,
+            mws_auth_token)
           if response.success.eql?(false)
             return response
           end
@@ -163,19 +163,19 @@ module PayWithAmazon
         amazon_reference_id,
         authorization_reference_id,
         charge_amount,
-        currency_code: charge_currency_code,
-        seller_authorization_note: charge_note,
-        transaction_timeout: 0,
-        capture_now: true,
-        soft_descriptor: soft_descriptor,
-        seller_note: charge_note,
-        platform_id: platform_id,
-        seller_order_id: charge_order_id,
-        store_name: store_name,
-        custom_information: custom_information,
-        inherit_shipping_address: true,
-        merchant_id: merchant_id,
-        mws_auth_token: mws_auth_token)
+        charge_currency_code,
+        charge_note,
+        0,
+        true,
+        soft_descriptor,
+        charge_note,
+        platform_id,
+        charge_order_id,
+        store_name,
+        custom_information,
+        true,
+        merchant_id,
+        mws_auth_token)
       return response
     end
 

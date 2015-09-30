@@ -17,7 +17,7 @@ bundle install
 
 ## Requirements
 
-* Ruby 2.0.0 or higher
+* Ruby 1.8.7 or higher
 
 ## Quick Start
 
@@ -56,7 +56,7 @@ client = PayWithAmazon::Client.new(
   merchant_id,
   access_key,
   secret_key,
-  sandbox: true
+  true
 )
 ```
 
@@ -76,8 +76,9 @@ client = PayWithAmazon::Client.new(
   merchant_id,
   access_key,
   secret_key,
-  region: :eu,
-  currency_code: :gbp
+  true,
+  :usd,
+  :eu
 )
 ```
 
@@ -98,7 +99,7 @@ client = PayWithAmazon::Client.new(
   merchant_id,
   access_key,
   secret_key,
-  sandbox: true
+  true
 )
 
 # These values are grabbed from the Login and Pay
@@ -108,7 +109,7 @@ address_consent_token = 'ADDRESS_CONSENT_TOKEN'
 
 client.get_order_reference_details(
   amazon_order_reference_id,
-  address_consent_token: address_consent_token
+  address_consent_token
 )
 
 ```
@@ -123,7 +124,7 @@ address_consent_token = 'ADDRESS_CONSENT_TOKEN'
 
 response = client.get_order_reference_details(
   amazon_order_reference_id,
-  address_consent_token: address_consent_token
+  address_consent_token
 )
 
 # This will return the original response body as a String
@@ -195,7 +196,7 @@ client = PayWithAmazon::Client.new(
   merchant_id,
   access_key,
   secret_key,
-  sandbox: true
+  true
 )
 
 # These values are grabbed from the Login and Pay
@@ -208,7 +209,7 @@ address_consent_token = 'ADDRESS_CONSENT_TOKEN'
 # API call to obtain the order reference details.
 client.get_order_reference_details(
   amazon_order_reference_id,
-  address_consent_token: address_consent_token
+  address_consent_token
 )
 
 # Set the amount for the transaction.
@@ -221,10 +222,11 @@ amount = '10.00'
 client.set_order_reference_details(
   amazon_order_reference_id,
   amount,
-  currency_code: 'USD', # Default: USD
-  seller_note: 'Your Seller Note',
-  seller_order_id: 'Your Seller Order Id',
-  store_name: 'Your Store Name'
+  'USD',
+  'Your Platform ID',
+  'Your Seller Note',
+  'Your Seller Order Id',
+  'Your Store Name'
 )
 
 # Make the ConfirmOrderReference API call to
@@ -245,10 +247,10 @@ response = client.authorize(
   amazon_order_reference_id,
   authorization_reference_id,
   amount,
-  currency_code: 'USD', # Default: USD
-  seller_authorization_note: 'Your Authorization Note',
-  transaction_timeout: 0, # Set to 0 for synchronous mode
-  capture_now: true # Set this to true if you want to capture the amount in the same API call
+  'USD',
+  'Your Authorization Note',
+  0, # Set transaction_timeout to 0 for synchronous mode
+  true # Set capture_now to true if you want to capture the amount in the same API call
 )
 
 # You will need the Amazon Authorization Id from the
@@ -268,8 +270,8 @@ client.capture(
   amazon_authorization_id,
   capture_reference_id,
   amount,
-  currency_code: 'USD', # Default: USD
-  seller_capture_note: 'Your Capture Note'
+  'USD'
+  'Your Capture Note'
 )
 
 # Close the order reference once your one time
@@ -293,7 +295,7 @@ client = PayWithAmazon::Client.new(
   merchant_id,
   access_key,
   secret_key,
-  sandbox: true
+  true
 )
 
 # These values are grabbed from the Login and Pay
@@ -306,7 +308,7 @@ address_consent_token = 'ADDRESS_CONSENT_TOKEN'
 # API call to obtain the billing agreement details.
 client.get_billing_agreement_details(
   amazon_billing_agreement_id,
-  address_consent_token: address_consent_token
+  address_consent_token
 )
 
 # Next you will need to set the various details
@@ -315,10 +317,11 @@ client.get_billing_agreement_details(
 # are not used below.
 client.set_billing_agreement_details(
   amazon_billing_agreement_id,
-  seller_note: 'Your Seller Note',
-  seller_billing_agreement_id: 'Your Transaction Id',
-  store_name: 'Your Store Name',
-  custom_information: 'Additional Information'
+  'Your Platform ID',
+  'Your Seller Note',
+  'Your Transaction Id',
+  'Additional Information',
+  'Your Store Name'
 )
 
 # Make the ConfirmBillingAgreement API call to confirm
@@ -351,14 +354,16 @@ response = client.authorize_on_billing_agreement(
   amazon_billing_agreement_id,
   authorization_reference_id,
   amount,
-  currency_code: 'USD', # Default: USD
-  seller_authorization_note: 'Your Authorization Note',
-  transaction_timeout: 0, # Set to 0 for synchronous mode
-  capture_now: true, # Set this to true if you want to capture the amount in the same API call
-  seller_note: 'Your Seller Note',
-  seller_order_id: 'Your Order Id',
-  store_name: 'Your Store Name',
-  custom_information: 'Additional Information'
+  'USD',
+  'Your Authorization Note',
+  0, # Set transaction_timeout to 0 for synchronous mode
+  true, # Set capture_now to true if you want to capture the amount in the same API call
+  'Your Soft Descriptor',
+  'Your Seller Note',
+  'Your Platform Id',
+  'Additional Information'
+  'Your Order Id',
+  'Your Store Name'
 )
 
 # You will need the Amazon Authorization Id from the
@@ -378,15 +383,15 @@ client.capture(
   amazon_authorization_id,
   capture_reference_id,
   amount,
-  currency_code: 'USD', # Default: USD
-  seller_capture_note: 'Your Capture Note'
+  'USD',
+  'Your Capture Note'
 )
 
 # The following API call should not be made until you
 # are ready to terminate the billing agreement.
 client.close_billing_agreement(
   amazon_billing_agreement_id,
-  closure_reason: 'Reason For Closing'
+  'Reason For Closing'
 )
 
 ```
@@ -404,10 +409,13 @@ require 'pay_with_amazon'
 # Central account.
 client_id = 'Your Client Id'
 
+region = :na 
+sandbox = true
+
 login = PayWithAmazon::Login.new(
   client_id,
-  region: :na, # Default: :na
-  sandbox: true # Default: false
+  region,
+  sandbox
 )
 
 # The access token is available in the return URL

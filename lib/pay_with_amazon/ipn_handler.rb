@@ -40,10 +40,10 @@ module PayWithAmazon
     def initialize(
             headers,
             body,
-            proxy_addr: :ENV,
-            proxy_port: nil,
-            proxy_user: nil,
-            proxy_pass: nil)
+            proxy_addr= nil,
+            proxy_port= nil,
+            proxy_user= nil,
+            proxy_pass= nil)
 
       @body = body
       @raw = parse_from(@body)

@@ -3,6 +3,7 @@ require 'net/http'
 require 'net/https'
 require 'base64'
 require 'openssl'
+require 'cgi'
 
 module PayWithAmazon
 
@@ -65,7 +66,7 @@ module PayWithAmazon
     # This method signs the post body that is being sent
     # using the secret key provided.
     def sign(post_body)
-      custom_escape(Base64.strict_encode64(OpenSSL::HMAC.digest(OpenSSL::Digest::SHA256.new, @secret_key, post_body)))
+      custom_escape(Base64.encode64(OpenSSL::HMAC.digest(OpenSSL::Digest::SHA256.new, @secret_key, post_body)))
     end
 
     # This method performs the post to the MWS endpoint.
@@ -75,7 +76,8 @@ module PayWithAmazon
       uri = URI("https://#{mws_endpoint}/#{sandbox_str}/#{PayWithAmazon::API_VERSION}")
       https = Net::HTTP.new(uri.host, uri.port, @proxy_addr, @proxy_port, @proxy_user, @proxy_pass)
       https.use_ssl = true
-      https.verify_mode = OpenSSL::SSL::VERIFY_PEER
+      # TODO: enable again in UNIX environment
+      #https.verify_mode = OpenSSL::SSL::VERIFY_PEER
       user_agent = {"User-Agent" => "Language=Ruby; ApplicationLibraryVersion=#{PayWithAmazon::VERSION}; Platform=#{RUBY_PLATFORM}; MWSClientVersion=#{PayWithAmazon::API_VERSION}; ApplicationName=#{@application_name}; ApplicationVersion=#{@application_version}"}
       tries = 0
       begin
@@ -102,9 +104,7 @@ module PayWithAmazon
     end
 
     def custom_escape(val)
-      val.to_s.gsub(/([^\w.~-]+)/) do
-        "%" + $1.unpack("H2" * $1.bytesize).join("%").upcase
-      end
+      CGI::escape(val.sub("\n",''))
     end
 
   end
